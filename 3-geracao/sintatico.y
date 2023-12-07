@@ -9,6 +9,9 @@ int contaVar = 0;
 int rotulo = 0;
 int ehRegistro = 0;
 int tipo;
+int tam; // tamanho da estrutura quando percorrer exepressao de acesso 
+int des; // deslocamento para chegar no campo
+int pos; // posicao do tipo na tabela de simbolos 
 %}
 
 %token T_PROGRAMA
