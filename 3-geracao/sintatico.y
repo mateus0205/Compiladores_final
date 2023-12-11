@@ -86,14 +86,19 @@ tipo
    : T_LOGICO
          { 
             tipo = LOG; 
-            // TODO #1
+            tam = 1;
+            pos = 1;
+            // TODO: #1
             // Além do tipo, precisa guardar o TAM (tamanho) do
             // tipo e a POS (posição) do tipo na tab. símbolos
+            guardaInformacoesLOG(tipo, tam, pos);
          }
    | T_INTEIRO
          { 
             tipo = INT;
-            // idem 
+            tam = 1;
+            pos = 0;
+            guardaInformacoesINT(tipo,tam,pos);
         }
    | T_REGISTRO T_IDENTIF
          { 
