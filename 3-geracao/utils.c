@@ -63,6 +63,46 @@ void insereSimbolo (struct elemTabSimbolos elem)
     tabSimb[posTab++] = elem;         // insere o elemento na posição posTab++
 }
 
+void guardaInformacoesLOG(char tipo, int tam, int pos) {
+    // Certifique-se de que ainda há espaço na tabela de símbolos
+    if (posTab < TAM_TAB) {
+        // Preencha a próxima entrada disponível na tabela de símbolos
+        struct elemTabSimbolos novoSimbolo;
+        strcpy(novoSimbolo.id, "nome_do_seu_identificador"); // Substitua pelo identificador real
+        novoSimbolo.end = 0; // Substitua pelo endereço real
+        novoSimbolo.tip = tipo;
+        novoSimbolo.tam = tam;
+        novoSimbolo.pos = pos;
+        strcpy(novoSimbolo.campos, ""); // Substitua pelos campos reais, se aplicável
+
+        // Insira o novo símbolo na tabela de símbolos
+        tabSimb[posTab++] = novoSimbolo;
+    } else {
+        // Lide com a tabela de símbolos cheia (adicione lógica adicional, se necessário)
+        fprintf(stderr, "Tabela de símbolos cheia. Não é possível adicionar mais símbolos.\n");
+    }
+}
+void guardaInformacoesINT(char tipo, int tam, int pos) {
+    // Certifique-se de que ainda há espaço na tabela de símbolos
+    if (posTab < TAM_TAB) {
+        // Preencha a próxima entrada disponível na tabela de símbolos
+        struct elemTabSimbolos novoSimbolo;
+        strcpy(novoSimbolo.id, "nome_do_seu_identificador"); // Substitua pelo identificador real
+        novoSimbolo.end = 0; // Substitua pelo endereço real
+        novoSimbolo.tip = tipo;
+        novoSimbolo.tam = tam;
+        novoSimbolo.pos = pos;
+        strcpy(novoSimbolo.campos, ""); // Substitua pelos campos reais, se aplicável
+
+        // Insira o novo símbolo na tabela de símbolos
+        tabSimb[posTab++] = novoSimbolo;
+    } else {
+        // Lide com a tabela de símbolos cheia (adicione lógica adicional, se necessário)
+        fprintf(stderr, "Tabela de símbolos cheia. Não é possível adicionar mais símbolos.\n");
+    }
+}
+
+
 void mostraTabela() 
 {
     puts("------------------------------------Tabela de Simbolos------------------------------------");
@@ -76,7 +116,7 @@ void mostraTabela()
                 nomeTipo[tabSimb[i].tip],
                 tabSimb[i].tam,
                 tabSimb[i].pos,
-                (tabSimb[i].campos ? tabSimb[i].campos: ""));
+                (tabSimb[i].campos[0] != '\0' ? tabSimb[i].campos: ""));
     puts("");
 }
 
