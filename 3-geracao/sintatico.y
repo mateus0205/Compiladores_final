@@ -9,9 +9,9 @@ int contaVar = 0;
 int rotulo = 0;
 int ehRegistro = 0;
 int tipo;
-int tam; // tamanho da estrutura quando percorrer exepressao de acesso 
+int tam; // tamanho da estrutura qdo percorre expressão de acesso
 int des; // deslocamento para chegar no campo
-int pos; // posicao do tipo na tabela de simbolos 
+int pos; // posicao do tipo na tabela de simbolos
 %}
 
 %token T_PROGRAMA
@@ -86,19 +86,14 @@ tipo
    : T_LOGICO
          { 
             tipo = LOG; 
-            tam = 1;
-            pos = 1;
-            // TODO: #1
+            // TODO #1
             // Além do tipo, precisa guardar o TAM (tamanho) do
             // tipo e a POS (posição) do tipo na tab. símbolos
-            guardaInformacoesLOG(tipo, tam, pos);
          }
    | T_INTEIRO
          { 
             tipo = INT;
-            tam = 1;
-            pos = 0;
-            guardaInformacoesINT(tipo,tam,pos);
+            // idem 
         }
    | T_REGISTRO T_IDENTIF
          { 
@@ -203,7 +198,7 @@ entrada_saida
    ;
 
 entrada
-   : T_LEIA T_IDENTIF
+   : T_LEIA expressao_acesso
        { 
           int pos = buscaSimbolo (atomo);
           // TODO #8
