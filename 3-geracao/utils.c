@@ -68,8 +68,10 @@ void mostra(ptregistro L) {
     while (L) {
         if (L->prox) {
             printf("(%s, %s, %d, %d, %d)=>", L->nome, nomeTipo[L->tipo], L->pos, L->desl, L->tam);
+            
         } else {
             printf("(%s, %s, %d, %d, %d)", L->nome, nomeTipo[L->tipo], L->pos, L->desl, L->tam);
+           
         }
         L = L->prox;
     }
@@ -136,6 +138,7 @@ void mostraTabela() {
         mostra(tabSimb[i].listaCampos);
     }
     puts("");
+    
 }
 
 // Pilha Semantica
