@@ -82,7 +82,7 @@ cabecalho
        {
           strcpy(elemTab.id, "inteiro");
           elemTab.end = -1;
-          elemTab.tip = INT; // mudei para corrigir a tabela 
+          elemTab.tip = INT;
           elemTab.tam = 1;
           elemTab.pos = pos++;
           insereSimbolo(elemTab);
@@ -104,24 +104,26 @@ tipo
             tipo = LOG; 
             // TODO #1
             // Além do tipo, precisa guardar o TAM (tamanho) do tipo e a POS (posição) do tipo na tab. símbolos
-            tam = 1; // nesse todo passamos o tamanho e a posição para tipo LOG DA TABELA DE SIMBOLOS
-            pos = 1;
+            tam = tabSimb[pos].tam; 
+            pos = tabSimb[pos].pos; 
 
          }
    | T_INTEIRO
          { 
             tipo = INT;
             // idem 
-            tam = 1; // nesse todo passamos o tamanho e a posição para tipo LOG DA TABELA DE SIMBOLOS
-            pos = 0;
+           tam = tabSimb[pos].tam; 
+            pos = tabSimb[pos].pos; 
         }
    | T_REGISTRO T_IDENTIF
          { 
             tipo = REG; 
             // TODO #2
             // Aqui tem uma chamada de buscaSimbolo para encontrar as informações de TAM e POS do registro
-            pos = tabSimb[buscaSimbolo(atomo)].pos;
-            tam = tabSimb[buscaSimbolo(atomo)].tam;
+            int posRegistro = buscaSimbolo(atomo);
+            elemTab.tam = tabSimb[posRegistro].tam;
+            elemTab.pos = tabSimb[posRegistro].pos;
+            elemTab.listaCampos = tabSimb[pos].listaCampos;
          }
    ;
 
@@ -135,9 +137,8 @@ define
          {
             // TODO #3
             // Iniciar a lista de campos
-            //listaCampos = criarListaCampos(); 
-            // iniciar a lista de campos com uma struct
             struct listaCampos lista_campos;
+            elemTab.listaCampos = NULL;
          } 
    definicao_campos T_FIMDEF T_IDENTIF
        {
@@ -147,8 +148,6 @@ define
             elemTab.end = -1;
             elemTab.tip = REG;
             insereSimbolo(elemTab);
-
-            //
        }
    ;
 
@@ -160,14 +159,19 @@ definicao_campos
 lista_campos
    : lista_campos T_IDENTIF
       {
-         // TODO #5
-         // acrescentar esse campo na lista de campos que esta sendo construida o deslocamento (endereço) do próximo campo será o deslocamento anterior mais o tamanho desse campo
+         // Acrescentar esse campo na lista de campos que está sendo construída
+         elemTab.listaCampos = insere(elemTab.listaCampos, atomo, tipo, pos, elemTab.tam, tam);
+         des += elemTab.tam;
+         elemTab.tam += tam;
       }
    | T_IDENTIF
       {
-        // idem
+         // Idem
+         elemTab.listaCampos = insere(elemTab.listaCampos, atomo, tipo, pos, elemTab.tam, tam);
+         des += elemTab.tam;
+         elemTab.tam += tam;
       }
-   ;
+
 
 variaveis
    : /* vazio */
@@ -179,8 +183,9 @@ declaracao_variaveis
    | tipo lista_variaveis
    ;
 
+
 lista_variaveis
-    : lista_variaveis T_IDENTIF 
+   : lista_variaveis T_IDENTIF
         { 
             strcpy(elemTab.id, atomo);
             elemTab.end = contaVar;
@@ -190,40 +195,31 @@ lista_variaveis
             elemTab.tam = tam;
             elemTab.pos = pos;
             insereSimbolo (elemTab);
-            
-            // Atualiza contaVar pela posição de memória da variável
-            contaVar += elemTab.tam;  // Use elemTab.tam diretamente
-            
-            // Não é necessário incrementar contaVar aqui, pois você está usando elemTab.tam
 
-            // TODO #7
-            // Se a variável for registro, ajuste contaVar pelo tamanho do registro
+            // Incrementa o contador pelo tamanho do registro, não pelo tamanho da variável individual
             if (elemTab.tip == REG) {
-                contaVar += contaVar;  // Use elemTab.tam ao invés de acessar a tabela de símbolos
+               contaVar += elemTab.tam;
+            } else {
+               contaVar++;
             }
         }
-    | T_IDENTIF
-       { 
+   | T_IDENTIF
+        { 
             strcpy(elemTab.id, atomo);
             elemTab.end = contaVar;
             elemTab.tip = tipo;
-            // TODO #6
-            // Tem outros campos para acrescentar na tab. símbolos
+            // idem
             elemTab.tam = tam;
             elemTab.pos = pos;
             insereSimbolo (elemTab);
 
-            // Atualiza contaVar pela posição de memória da variável
-            contaVar += elemTab.tam;  // Use elemTab.tam diretamente
-
-            // Não é necessário incrementar contaVar aqui, pois você está usando elemTab.tam
-
-            // TODO #7
-            // Se a variável for registro, ajuste contaVar pelo tamanho do registro
+            // idem 
             if (elemTab.tip == REG) {
-               contaVar += contaVar;  // Use elemTab.tam ao invés de acessar a tabela de símbolos
+               contaVar += elemTab.tam;
+            } else {
+               contaVar++;
             }
-       }
+        }
    ;
 
 lista_comandos
@@ -370,12 +366,32 @@ expressao_acesso
               // 1. busca o simbolo na tabela de símbolos
               // 2. se não for do tipo registo tem erro
               // 3. guardar o TAM, POS e DES desse t_IDENTIF
+              ptregistro campo = busca(elemTab.listaCampos, atomo);
+              if (!campo) {
+                 yyerror("Erro: Campo não encontrado no registro.");
+              }
+              if (campo->tipo != REG) {
+                 yyerror("Erro: O campo não é do tipo registro.");
+              }
+              tam = campo->tam;
+              des = campo->desl;
+              tipo = campo->tipo;
            } else {
               //--- Campo que eh registro
               // 1. busca esse campo na lista de campos
               // 2. se não encontrar, erro
               // 3. se encontrar e não for registro, erro
               // 4. guardar o TAM, POS e DES desse CAMPO
+              ptregistro campo = busca(elemTab.listaCampos, atomo);
+              if (!campo) {
+                 yyerror("Erro: Campo não encontrado no registro.");
+              } else if (campo->tipo != REG) {
+                 yyerror("Erro: O campo não é do tipo registro.");
+              } else {
+                 tam = campo->tam;
+                 pos = campo->pos;
+                 des = campo->desl;
+              }
            }
        }
      expressao_acesso
@@ -388,11 +404,21 @@ expressao_acesso
                // 3. guardar o TAM, DES e TIPO desse campo.
                //    o tipo (TIP) nesse caso é a posição do tipo
                //    na tabela de simbolos
+               ptregistro campo = busca(elemTab.listaCampos, atomo);
+               if (!campo) {
+                  yyerror("Erro: Campo não encontrado no registro.");
+               }
+               tam = campo->tam;
+               des = campo->desl;
+               tipo = campo->tipo;
            }
            else {
               // TODO #14
               int pos = buscaSimbolo (atomo);
               // guardar TAM, DES e TIPO dessa variável
+              tam = tabSimb[pos].tam;
+              des = tabSimb[pos].end;
+              tipo = tabSimb[pos].tip;
            }
            ehRegistro = 0;
        };
@@ -402,7 +428,13 @@ termo
        {
           // TODO #15
           // Se for registro, tem que fazer uma repetição do TAM do registro de CRVG (em ondem inversa)
-          fprintf(yyout, "\tCRVG\t%d\n", tabSimb[pos].end);  
+          if (ehRegistro) {
+             for (int i = tam - 1; i >= 0; i--) {
+                fprintf(yyout, "\tCRVG\t%d\n", des + i);
+             }
+          } else {
+             fprintf(yyout, "\tCRVG\t%d\n", des);
+          }
           empilha(tipo);
        }
    | T_NUMERO
