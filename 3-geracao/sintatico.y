@@ -82,14 +82,14 @@ cabecalho
        {
           strcpy(elemTab.id, "inteiro");
           elemTab.end = -1;
-          elemTab.tip = atoi(nomeTipo[2]);
+          elemTab.tip = INT; // mudei para corrigir a tabela 
           elemTab.tam = 1;
           elemTab.pos = pos++;
           insereSimbolo(elemTab);
 
           strcpy(elemTab.id, "logico");
           elemTab.end = -1;
-          elemTab.tip = atoi(nomeTipo[2]);
+          elemTab.tip = LOG;
           elemTab.tam = 1;
           elemTab.pos = pos++;
           insereSimbolo(elemTab);
@@ -104,7 +104,7 @@ tipo
             tipo = LOG; 
             // TODO #1
             // Além do tipo, precisa guardar o TAM (tamanho) do tipo e a POS (posição) do tipo na tab. símbolos
-            tam = 1;
+            tam = 1; // nesse todo passamos o tamanho e a posição para tipo LOG DA TABELA DE SIMBOLOS
             pos = 1;
 
          }
@@ -112,7 +112,7 @@ tipo
          { 
             tipo = INT;
             // idem 
-            tam = 1;
+            tam = 1; // nesse todo passamos o tamanho e a posição para tipo LOG DA TABELA DE SIMBOLOS
             pos = 0;
         }
    | T_REGISTRO T_IDENTIF
@@ -180,8 +180,7 @@ declaracao_variaveis
    ;
 
 lista_variaveis
-   : lista_variaveis
-     T_IDENTIF 
+    : lista_variaveis T_IDENTIF 
         { 
             strcpy(elemTab.id, atomo);
             elemTab.end = contaVar;
@@ -191,30 +190,38 @@ lista_variaveis
             elemTab.tam = tam;
             elemTab.pos = pos;
             insereSimbolo (elemTab);
-            //contaVar++; 
+            
+            // Atualiza contaVar pela posição de memória da variável
+            contaVar += elemTab.tam;  // Use elemTab.tam diretamente
+            
+            // Não é necessário incrementar contaVar aqui, pois você está usando elemTab.tam
+
             // TODO #7
-            // Se a variavel for registro contaVar = contaVar + TAM (tamanho do registro)
-            if(elemTab.tip == REG){
-               contaVar = contaVar + tabSimb[elemTab.pos].tam;
-            } else {
-                contaVar++;
+            // Se a variável for registro, ajuste contaVar pelo tamanho do registro
+            if (elemTab.tip == REG) {
+                contaVar += contaVar;  // Use elemTab.tam ao invés de acessar a tabela de símbolos
             }
         }
-   | T_IDENTIF
+    | T_IDENTIF
        { 
             strcpy(elemTab.id, atomo);
             elemTab.end = contaVar;
             elemTab.tip = tipo;
-            // idem
+            // TODO #6
+            // Tem outros campos para acrescentar na tab. símbolos
             elemTab.tam = tam;
             elemTab.pos = pos;
             insereSimbolo (elemTab);
-            //contaVar++;
-            // idem 
-            if(elemTab.tip == REG){
-               contaVar = contaVar + tabSimb[elemTab.pos].tam;
-            } else {
-                contaVar++;
+
+            // Atualiza contaVar pela posição de memória da variável
+            contaVar += elemTab.tam;  // Use elemTab.tam diretamente
+
+            // Não é necessário incrementar contaVar aqui, pois você está usando elemTab.tam
+
+            // TODO #7
+            // Se a variável for registro, ajuste contaVar pelo tamanho do registro
+            if (elemTab.tip == REG) {
+               contaVar += contaVar;  // Use elemTab.tam ao invés de acessar a tabela de símbolos
             }
        }
    ;
